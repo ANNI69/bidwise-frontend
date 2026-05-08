@@ -1,26 +1,36 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { JSX } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { Toaster } from "sonner";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Auctions from "./pages/Auctions";
+import AuctionDetail from "./pages/AuctionDetails";
 
-function App() {
+const ProtectedRoute = ({ children }: { children: JSX.Element }): JSX.Element => {
+  const { token } = useAuth();
+  return token ? children : <Navigate to="/login" />;
+};
+
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/auctions" element={
+            <ProtectedRoute><Auctions /></ProtectedRoute>
+          } />
+          <Route path="/auctions/:id" element={
+            <ProtectedRoute><AuctionDetail /></ProtectedRoute>
+          } />
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+        <Toaster />
+      </BrowserRouter>
+    </AuthProvider>
   );
-}
+};
 
 export default App;
